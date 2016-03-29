@@ -1,0 +1,4 @@
+name = Stuff
+description = Dev and Test Module.
+core = 7.x
+package = Mazpesca
