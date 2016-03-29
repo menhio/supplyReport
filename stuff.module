@@ -1,0 +1,258 @@
+<?php
+
+/*
+ * Implements hook_menu()
+ */
+function stuff_menu(){
+  $items['dev/stuff'] = array(
+    'title' => 'Existencias del Azteca 2 al 22 de Febrero 2016',
+    'description' => t('Reporte de Existencias.'),
+    'page callback' => 'stuff_reporte',
+    'access arguments' => array('administer content'),
+  );
+  
+  return $items;
+}
+
+/*
+ * Custom page callback for dev/stuff
+ */
+function stuff_reporte() {
+  
+  /*
+   * Azteca 2 Viaje: 1-2016 reportID 1666 - reportID 1843, tripID 748
+   */
+  $output .= genReport(1666, 1843, 748);
+  
+  return $output;
+}
+
+/*
+ * Generate Weekly Supplies Report
+ * $reportID1 int, $reportID2 int, $tripID int
+ */
+function genReport($reportID1, $reportID2, $tripID) {
+  
+  $output .= '<table class="table">';
+  $output .= '<th></th>' . '<th>Exist. Ant.</th>' . '<th>Exist. Actual</th>' . 
+      '<th>Consumo</th>';
+  
+  /*
+   * Azteca 2 Viaje: 1-2016 Barco: Azteca 2 nid = 748
+   */
+  /*
+   * Diesel 
+   */
+  $dieselTable = 'field_data_field_diesel_exist';
+  $dieselValue = 'field_diesel_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Diesel', 
+      $dieselTable, $dieselValue);
+  
+  /*
+   * Gasavion 
+   */
+  $gasavionTable = 'field_data_field_gasavion_exist';
+  $gasavionValue = 'field_gasavion_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Gasavión', 
+      $gasavionTable, $gasavionValue);
+  
+  /*
+   * Gasolina  
+   */
+  $gasolinaTable = 'field_data_field_gasolina_exist';
+  $gasolinaValue = 'field_gasolina_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Gasolina', 
+      $gasolinaTable, $gasolinaValue);
+  
+  /*
+   * Aceite Maq. PPL.
+   */
+  $aceitemaqpplTable = 'field_data_field_maq_ppal_exist';
+  $aceitemaqpplValue = 'field_maq_ppal_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Aciete Maq.PPl.', 
+      $aceitemaqpplTable, $aceitemaqpplValue);
+  
+  /*
+   * Aceite Aux
+   */
+  $aceiteauxTable = 'field_data_field_auxiliares_exist';
+  $aceiteauxValue = 'field_auxiliares_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Aciete Aux.', 
+      $aceiteauxTable, $aceiteauxValue);
+  
+  /*
+   * Aceite Hidráulico
+   */
+  $aceitehidraTable = 'field_data_field_hidraulico_exist';
+  $aceitehidraValue = 'field_hidraulico_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Aciete Hidráulico', 
+      $aceitehidraTable, $aceitehidraValue);
+  
+  /*
+   * Aceite Refrig.
+   */
+  $aceiterefrigTable = 'field_data_field_refrigeracion_exist';
+  $aceiterefrigValue = 'field_refrigeracion_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Aciete Rerig.', 
+      $aceiterefrigTable, $aceiterefrigValue);
+  
+  /*
+   * Transmisión MAQ. PPAL.
+   */
+  $transmisionTable = 'field_data_field_transmision_exist';
+  $transmisionValue = 'field_transmision_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Transmisión Maq. PPAL.', 
+      $transmisionTable, $transmisionValue);
+  
+  /*
+   * Agua LTS.
+   */
+  $aguaTable = 'field_data_field_agua_exist';
+  $aguaValue = 'field_agua_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Agua Lts.', 
+      $aguaTable, $aguaValue);
+  
+  /*
+   * Sal - TONS.
+   */
+  $salTable = 'field_data_field_sal_exist';
+  $salValue = 'field_sal_exist_value';
+  $output .= getSupply($reportID1, $reportID2, $tripID, 'Sal Tons.', 
+      $salTable, $salValue);
+  
+  $output .= '</table>';
+  
+  return $output;
+}
+
+/*
+ * Get supply from Existencias Semanales
+ * $dieselID1 int $dieselID2 int $viajeID int $insumo string
+ * $supplyTbl string table name ex: 'field_data_field_diesel_exist'
+ * $supplyVal string table name ex: 'field_diesel_exist_value'
+ */
+function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
+    $supplyVal) {
+  
+  /*
+   * Barco Viaje SubQuery
+   */
+  $viaje = db_select('field_data_field_barco_viaje_semanal', 'vTbl');
+  
+  $viaje->addField('vTbl', 'entity_id', 'eidViaje');
+  $viaje->addField('vTbl', 'field_barco_viaje_semanal_target_id', 'tidViaje');
+  
+  $viajeResults = $viaje->execute();
+  $viajeAll = $viajeResults->fetchAll();
+  
+  /*
+   * Vessel SubQuery
+   */
+  $barco = db_select('field_data_field_barco_viaje', 'bTbl');
+  $barco->join('node', 'n', 'n.nid = bTbl.field_barco_viaje_target_id');
+  
+  $barco->addField('bTbl', 'entity_id', 'eidBarco');
+  $barco->addField('bTbl', 'field_barco_viaje_target_id', 'tidBarco');
+  $barco->addField('n', 'title', 'nameBarco');
+  
+  $barcoResults = $barco->execute();
+  $barcoAll = $barcoResults->fetchAll();
+  
+  /*
+   * Date SubQuery
+   */
+  $fecha = db_select('field_data_field_fecha_exist', 'fTbl');
+  
+  $fecha->addField('fTbl', 'entity_id', 'eidFecha');
+  $fecha->addField('fTbl', 'field_fecha_exist_value', 'valueFecha');
+  
+  $fechaResults = $fecha->execute();
+  $fechaAll = $fechaResults->fetchAll();
+  
+  /*
+   * Diesel Query 1
+   */
+  $query = db_select($supplyTbl, 'dTbl');
+  
+  $query->join($fecha, 'fJoin', 'fJoin.eidFecha = dTbl.entity_id');
+  $query->join($barco, 'bJoin', 'bJoin.eidBarco = dTbl.entity_id');
+  $query->join($viaje, 'vJoin', 'vJoin.eidViaje = dTbl.entity_id');
+  
+  $query->addField('dTbl', 'entity_id', 'eid');
+  $query->addField('dTbl', $supplyVal, 'Diesel');
+  
+  $query->addField('fJoin', 'valueFecha', 'Fecha');
+  
+  $query->addField('bJoin', 'tidBarco', 'tidBarco');
+  $query->addField('bJoin', 'nameBarco', 'Barco');
+  
+  $query->addField('vJoin', 'tidViaje', 'tidViaje1');
+  
+  $query->condition('dTbl.entity_id', array($dieselID1) ,'=');
+  $results = $query->execute();
+  $diesel1 = $results->fetchAll();
+  
+  /*
+   * Diesel Query  2
+   */
+  $query2 = db_select($supplyTbl, 'dTbl');
+  
+  $query2->join($fecha, 'fJoin', 'fJoin.eidFecha = dTbl.entity_id');
+  $query2->join($barco, 'bJoin', 'bJoin.eidBarco = dTbl.entity_id');
+  $query2->join($viaje, 'vJoin', 'vJoin.eidViaje = dTbl.entity_id');
+  
+  $query2->addField('dTbl', 'entity_id', 'eid');
+  $query2->addField('dTbl', $supplyVal, 'Diesel');
+  
+  $query2->addField('fJoin', 'valueFecha', 'Fecha');
+  
+  $query2->addField('bJoin', 'tidBarco', 'tidBarco');
+  $query2->addField('bJoin', 'nameBarco', 'Barco');
+  
+  $query2->addField('vJoin', 'tidViaje', 'tidViaje2');
+  
+  $query2->condition('dTbl.entity_id', array($dieselID2) ,'=');
+  $results2 = $query2->execute();
+  $diesel2 = $results2->fetchAll();
+  
+  $query3 = db_select('field_data_field_barco_viaje_semanal', 'eA2Tbl');
+  $query3->join($query, 'q1Join', 
+      'q1Join.tidViaje1 = eA2Tbl.field_barco_viaje_semanal_target_id');
+  $query3->join($query2, 'q2Join', 
+      'q2Join.tidViaje2 = eA2Tbl.field_barco_viaje_semanal_target_id');
+  
+  $query3->addField('eA2Tbl', 'field_barco_viaje_semanal_target_id', 'bvTID');
+  $query3->addField('q1Join', 'Diesel', 'Diesel1');
+  $query3->addField('q2Join', 'Diesel', 'Diesel2');
+  
+  $query3->condition('eA2Tbl.field_barco_viaje_semanal_target_id', array($viajeID) 
+      ,'=');
+  
+  $query3->groupBy('bvTID');
+  
+  $results3 = $query3->execute();
+  $eA2 = $results3->fetchAll();
+  
+  
+  
+  $output .= '<tr>';
+  $output .= '<td>';
+  $output .= '<strong>'. $insumo . '</strong>';
+  $output .= '</td>';
+  foreach($eA2 as $item) {
+    
+    $output .= '<td>';
+    $output .= $item->Diesel1;
+    $output .= '</td>';
+    $output .= '<td>';
+    $output .= $item->Diesel2;
+    $output .= '</td>';
+    $output .= '<td>';
+    $output .= $item->Diesel1 - $item->Diesel2;
+    $output .= '</td>';
+    
+  }
+  $output .= '</tr>';
+  
+  return $output;
+}
