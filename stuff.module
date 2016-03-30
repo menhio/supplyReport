@@ -28,7 +28,6 @@ function stuff_reporte() {
   $output .= genReport(1666, 1843, 748);
 ?>
     </div>
-  ?>
     <div class="col-xs-6 col-md-4"></div>
     <div class="col-xs-6 col-md-4"></div>
   </div>
