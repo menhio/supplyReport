@@ -5,7 +5,7 @@
  */
 function stuff_menu(){
   $items['dev/stuff'] = array(
-    'title' => 'Existencias del Azteca 2 al 22 de Febrero 2016',
+    'title' => 'Existencias al 22 de Febrero 2016',
     'description' => t('Reporte de Existencias.'),
     'page callback' => 'stuff_reporte',
     'access arguments' => array('administer content'),
@@ -18,21 +18,44 @@ function stuff_menu(){
  * Custom page callback for dev/stuff
  */
 function stuff_reporte() {
-  ?>
-  <div class="row">
-    <div class="col-xs-6 col-md-4">
-<?php
+  $output .= '<div class="row">';
+  
   /*
    * Azteca 2 Viaje: 1-2016 reportID 1666 - reportID 1843, tripID 748
    */
+  $output .= '<div class="col-xs-12 col-md-6 col-lg-4">';
+  $output .= '<h4 class="text-center">Azteca 2 Viaje 1-2016</h4>';
+  $output .= openTable();
   $output .= genReport(1666, 1843, 748);
-?>
-    </div>
-    <div class="col-xs-6 col-md-4"></div>
-    <div class="col-xs-6 col-md-4"></div>
-  </div>
-<?php
+  $output .= closeTable();
+  $output .= '</div>';
   
+  $output .= '<div class="col-xs-12 col-md-6 col-lg-4">';
+  $output .= '<h4 class="text-center">Azteca 3 Viaje 1-2016</h4>';
+  $output .= openTable();
+  $output .= genReport(1667, 1844, 799);
+  $output .= closeTable();
+  $output .= '</div>';
+  
+  $output .= '<div class="col-xs-12 col-md-6 col-lg-4">';
+  $output .= '</div>';
+  
+  $output .= '</div>';
+  
+  return $output;
+}
+
+function openTable() {
+  $output .= '<table class="table">';
+  $output .= '<th></th>' . '<th>Ant.</th>' . '<th>Actual</th>' . 
+      '<th>Consumo</th>';
+  
+  return $output;
+}
+
+function closeTable() {
+  
+  $output .= '</table>';
   return $output;
 }
 
@@ -42,9 +65,7 @@ function stuff_reporte() {
  */
 function genReport($reportID1, $reportID2, $tripID) {
   
-  $output .= '<table class="table">';
-  $output .= '<th></th>' . '<th>Exist. Ant.</th>' . '<th>Exist. Actual</th>' . 
-      '<th>Consumo</th>';
+  
   
   /*
    * Azteca 2 Viaje: 1-2016 Barco: Azteca 2 nid = 748
@@ -128,8 +149,6 @@ function genReport($reportID1, $reportID2, $tripID) {
   $salValue = 'field_sal_exist_value';
   $output .= getSupply($reportID1, $reportID2, $tripID, 'Sal Tons.', 
       $salTable, $salValue);
-  
-  $output .= '</table>';
   
   return $output;
 }
