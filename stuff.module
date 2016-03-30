@@ -18,11 +18,21 @@ function stuff_menu(){
  * Custom page callback for dev/stuff
  */
 function stuff_reporte() {
-  
+  ?>
+  <div class="row">
+    <div class="col-xs-6 col-md-4">
+<?php
   /*
    * Azteca 2 Viaje: 1-2016 reportID 1666 - reportID 1843, tripID 748
    */
   $output .= genReport(1666, 1843, 748);
+?>
+    </div>
+  ?>
+    <div class="col-xs-6 col-md-4"></div>
+    <div class="col-xs-6 col-md-4"></div>
+  </div>
+<?php
   
   return $output;
 }
@@ -193,7 +203,7 @@ function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
   $diesel1 = $results->fetchAll();
   
   /*
-   * Diesel Query  2
+   * Diesel Query 2
    */
   $query2 = db_select($supplyTbl, 'dTbl');
   
