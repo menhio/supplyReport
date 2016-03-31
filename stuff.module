@@ -8,7 +8,7 @@ function stuff_menu(){
     'title' => 'Existencias al 22 de Febrero 2016',
     'description' => t('Reporte de Existencias.'),
     'page callback' => 'stuff_reporte',
-    'access arguments' => array('administer content'),
+    'access arguments' => array('access content'),
   );
   
   return $items;
@@ -131,8 +131,8 @@ function genReport($reportID1, $reportID2, $tripID) {
    */
   $transmisionTable = 'field_data_field_transmision_exist';
   $transmisionValue = 'field_transmision_exist_value';
-  $output .= getSupply($reportID1, $reportID2, $tripID, 'Transmisión Maq. PPAL.', 
-      $transmisionTable, $transmisionValue);
+  $output .= getSupply($reportID1, $reportID2, $tripID, 
+      'Transmisión Maq. PPAL.', $transmisionTable, $transmisionValue);
   
   /*
    * Agua LTS.
@@ -253,33 +253,42 @@ function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
   $query3->addField('q1Join', 'Diesel', 'Diesel1');
   $query3->addField('q2Join', 'Diesel', 'Diesel2');
   
-  $query3->condition('eA2Tbl.field_barco_viaje_semanal_target_id', array($viajeID) 
-      ,'=');
+  $query3->condition('eA2Tbl.field_barco_viaje_semanal_target_id', 
+      array($viajeID) ,'=');
   
   $query3->groupBy('bvTID');
   
   $results3 = $query3->execute();
   $eA2 = $results3->fetchAll();
   
-  
-  
   $output .= '<tr>';
   $output .= '<td>';
   $output .= '<strong>'. $insumo . '</strong>';
   $output .= '</td>';
-  foreach($eA2 as $item) {
-    
-    $output .= '<td>';
-    $output .= $item->Diesel1;
-    $output .= '</td>';
-    $output .= '<td>';
-    $output .= $item->Diesel2;
-    $output .= '</td>';
-    $output .= '<td>';
-    $output .= $item->Diesel1 - $item->Diesel2;
-    $output .= '</td>';
-    
-  }
+  //print_r($eA2);
+  if (!empty($eA2)) {
+    foreach($eA2 as $item) {
+      $output .= '<td>';
+      $output .= $item->Diesel1;
+      $output .= '</td>';
+      $output .= '<td>';
+      $output .= $item->Diesel2;
+      $output .= '</td>';
+      $output .= '<td>';
+      $output .= $item->Diesel1 - $item->Diesel2;
+      $output .= '</td>';
+    }
+    } else {
+      $output .= '<td>';
+      $output .= 0;
+      $output .= '</td>';
+      $output .= '<td>';
+      $output .= 0;
+      $output .= '</td>';
+      $output .= '<td>';
+      $output .= 0;
+      $output .= '</td>';
+    }
   $output .= '</tr>';
   
   return $output;
