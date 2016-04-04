@@ -24,17 +24,29 @@ function stuff_reporte() {
    * Azteca 2 Viaje: 1-2016 reportID 1666 - reportID 1843, tripID 748
    */
   $output .= '<div class="col-xs-12 col-md-6 col-lg-4">';
-  $output .= '<h4 class="text-center">Azteca 2 Viaje 1-2016</h4>';
+  $output .= '<div class="panel panel-primary">';
+  $output .= '<div class="panel-heading">';
+  $output .= '<h3 class="panel-title text-center">Azteca 2 Viaje 1-2016</h3>';
+  $output .= '</div>'; // Panel Heading ending dev
+  $output .= '<div class="panel-body">';
   $output .= openTable();
   $output .= genReport(1666, 1843, 748);
   $output .= closeTable();
-  $output .= '</div>';
+  $output .= '</div>'; // Panel body ending div
+  $output .= '</div>'; // Panel ending div
+  $output .= '</div>'; // col ending dev
   
   $output .= '<div class="col-xs-12 col-md-6 col-lg-4">';
-  $output .= '<h4 class="text-center">Azteca 3 Viaje 1-2016</h4>';
+  $output .= '<div class="panel panel-primary">';
+  $output .= '<div class="panel-heading">';
+  $output .= '<h3 class="panel-title text-center">Azteca 3 Viaje 1-2016</h3>';
+  $output .= '</div>';
+  $output .= '<div class="panel-body">';
   $output .= openTable();
   $output .= genReport(1667, 1844, 799);
   $output .= closeTable();
+  $output .= '</div>';
+  $output .= '</div>';
   $output .= '</div>';
   
   $output .= '<div class="col-xs-12 col-md-6 col-lg-4">';
@@ -46,9 +58,10 @@ function stuff_reporte() {
 }
 
 function openTable() {
-  $output .= '<table class="table">';
-  $output .= '<th></th>' . '<th>Ant.</th>' . '<th>Actual</th>' . 
-      '<th>Consumo</th>';
+  
+  $output .= '<table class="table table-hover">';
+  $output .= '<th></th>' . '<th class="text-center">Ant.</th>' . 
+      '<th class="text-center">Actual</th><th class="text-center">Consumo</th>';
   
   return $output;
 }
@@ -56,6 +69,7 @@ function openTable() {
 function closeTable() {
   
   $output .= '</table>';
+
   return $output;
 }
 
@@ -198,7 +212,7 @@ function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
   $fechaAll = $fechaResults->fetchAll();
   
   /*
-   * Diesel Query 1
+   * Main SubQuery 1
    */
   $query = db_select($supplyTbl, 'dTbl');
   
@@ -221,7 +235,7 @@ function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
   $diesel1 = $results->fetchAll();
   
   /*
-   * Diesel Query 2
+   * Main SubQuery 2
    */
   $query2 = db_select($supplyTbl, 'dTbl');
   
@@ -243,6 +257,9 @@ function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
   $results2 = $query2->execute();
   $diesel2 = $results2->fetchAll();
   
+  /*
+   * Main Query
+   */
   $query3 = db_select('field_data_field_barco_viaje_semanal', 'eA2Tbl');
   $query3->join($query, 'q1Join', 
       'q1Join.tidViaje1 = eA2Tbl.field_barco_viaje_semanal_target_id');
@@ -256,8 +273,8 @@ function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
   $query3->condition('eA2Tbl.field_barco_viaje_semanal_target_id', 
       array($viajeID) ,'=');
   
-  $query3->groupBy('bvTID');
-  
+  //$query3->groupBy('bvTID');
+  $query3->range(0,1);
   $results3 = $query3->execute();
   $eA2 = $results3->fetchAll();
   
@@ -268,24 +285,24 @@ function getSupply($dieselID1, $dieselID2, $viajeID, $insumo, $supplyTbl,
   //print_r($eA2);
   if (!empty($eA2)) {
     foreach($eA2 as $item) {
-      $output .= '<td>';
-      $output .= $item->Diesel1;
+      $output .= '<td class="text-right">';
+      $output .= number_format($item->Diesel1);
       $output .= '</td>';
-      $output .= '<td>';
-      $output .= $item->Diesel2;
+      $output .= '<td class="text-right">';
+      $output .= number_format($item->Diesel2);
       $output .= '</td>';
-      $output .= '<td>';
-      $output .= $item->Diesel1 - $item->Diesel2;
+      $output .= '<td class="text-right">';
+      $output .= number_format($item->Diesel1 - $item->Diesel2);
       $output .= '</td>';
     }
     } else {
-      $output .= '<td>';
+      $output .= '<td class="text-right">';
       $output .= 0;
       $output .= '</td>';
-      $output .= '<td>';
+      $output .= '<td class="text-right">';
       $output .= 0;
       $output .= '</td>';
-      $output .= '<td>';
+      $output .= '<td class="text-right">';
       $output .= 0;
       $output .= '</td>';
     }
